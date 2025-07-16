@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Design Express - Administrador</title>
+    <link rel="stylesheet" href="../css/admin.css">
+</head>
+<body>
+    <header>
+        <h1>Design Express - Painel Administrativo</h1>
+        <nav>
+            <button id="btnDashboard" class="nav-btn active">Dashboard</button>
+            <button id="btnEstatisticas" class="nav-btn">Estatísticas</button>
+            <button id="btnLogout" class="logout-btn">Sair</button>
+        </nav>
+    </header>
+
+    <main>
+        <!-- Seção Dashboard -->
+        <section id="dashboard" class="content-section active">
+            <div class="dashboard-header">
+                <h2>Dashboard de Pedidos</h2>
+                <div class="filters">
+                    <select id="filtroStatus">
+                        <option value="">Todos os Status</option>
+                        <option value="aguardando">Aguardando Análise</option>
+                        <option value="producao">Em Produção</option>
+                        <option value="aprovacao">Aguardando Aprovação</option>
+                        <option value="finalizada">Finalizada</option>
+                        <option value="reprovada">Reprovada</option>
+                    </select>
+                    
+                    <select id="filtroUrgencia">
+                        <option value="">Todas as Urgências</option>
+                        <option value="critica">Urgência Crítica</option>
+                        <option value="moderada">Urgência Moderada</option>
+                        <option value="leve">Urgência Leve</option>
+                    </select>
+                    
+                    <select id="filtroTipo">
+                        <option value="">Todos os Tipos</option>
+                        <option value="folders-flyers">Folders e Flyers</option>
+                        <option value="post-feed">Post para Feed</option>
+                        <option value="post-stories">Post para Stories</option>
+                        <option value="arte-reels">Arte para Reels/TikTok</option>
+                        <option value="capas-destaques">Capas para Destaques</option>
+                        <option value="avatar-perfil">Avatar / Foto de Perfil</option>
+                    </select>
+                    
+                    <input type="text" id="filtroCliente" placeholder="Buscar por cliente...">
+                </div>
+            </div>
+            
+            <div class="stats-cards">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalPedidos">0</div>
+                    <div class="stat-label">Total de Pedidos</div>
+                </div>
+                <div class="stat-card urgent">
+                    <div class="stat-number" id="pedidosUrgentes">0</div>
+                    <div class="stat-label">Urgentes</div>
+                </div>
+                <div class="stat-card pending">
+                    <div class="stat-number" id="pedidosPendentes">0</div>
+                    <div class="stat-label">Pendentes</div>
+                </div>
+                <div class="stat-card completed">
+                    <div class="stat-number" id="pedidosFinalizados">0</div>
+                    <div class="stat-label">Finalizados</div>
+                </div>
+            </div>
+            
+            <div id="listaPedidos">
+                <!-- Os pedidos serão carregados aqui via JavaScript -->
+            </div>
+        </section>
+
+        <!-- Seção Estatísticas -->
+        <section id="estatisticas" class="content-section">
+            <h2>Estatísticas do Sistema</h2>
+            <div class="stats-grid">
+                <div class="stats-section">
+                    <h3>Pedidos por Tipo</h3>
+                    <div id="estatisticasTipo"></div>
+                </div>
+                <div class="stats-section">
+                    <h3>Pedidos por Urgência</h3>
+                    <div id="estatisticasUrgencia"></div>
+                </div>
+                <div class="stats-section">
+                    <h3>Status dos Pedidos</h3>
+                    <div id="estatisticasStatus"></div>
+                </div>
+                <div class="stats-section">
+                    <h3>Tempo Médio de Entrega</h3>
+                    <div id="tempoMedio">Calculando...</div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal para visualizar/editar pedido -->
+    <div id="modalPedido" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Detalhes do Pedido</h2>
+            <div id="modalBody">
+                <!-- Conteúdo do pedido será carregado aqui -->
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/script.js"></script>
+    <script src="../js/admin.js"></script>
+</body>
+</html>
+

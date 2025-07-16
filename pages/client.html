@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Design Express - Cliente</title>
+    <link rel="stylesheet" href="../css/client.css">
+</head>
+<body>
+    <header>
+        <h1>Design Express - Painel do Cliente</h1>
+        <nav>
+            <button id="btnEnviarPedido" class="nav-btn active">Enviar Pedido</button>
+            <button id="btnMinhasDemandas" class="nav-btn">Minhas Demandas</button>
+            <button id="btnLogout" class="logout-btn">Sair</button>
+        </nav>
+    </header>
+
+    <main>
+        <!-- Seção Enviar Pedido -->
+        <section id="enviarPedido" class="content-section active">
+            <h2>Enviar Novo Pedido</h2>
+            <form id="pedidoForm">
+                <div class="form-group">
+                    <label for="nomeCompleto">Nome Completo:</label>
+                    <input type="text" id="nomeCompleto" name="nomeCompleto" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">E-mail:</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="telefone">Telefone com DDD:</label>
+                    <input type="tel" id="telefone" name="telefone" placeholder="(11) 99999-9999" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="tipoArte">Tipo de Arte:</label>
+                    <select id="tipoArte" name="tipoArte" required>
+                        <option value="">Selecione o tipo de arte</option>
+                        <option value="folders-flyers">Folders e Flyers</option>
+                        <option value="post-feed">Post para Feed</option>
+                        <option value="post-stories">Post para Stories</option>
+                        <option value="arte-reels">Arte para Reels/TikTok</option>
+                        <option value="capas-destaques">Capas para Destaques</option>
+                        <option value="avatar-perfil">Avatar / Foto de Perfil</option>
+                    </select>
+                </div>
+
+                <div class="form-group" id="redeSocialGroup" style="display: none;">
+                    <label for="redeSocial">Rede Social:</label>
+                    <select id="redeSocial" name="redeSocial">
+                        <option value="">Selecione a rede social</option>
+                        <option value="instagram">Instagram</option>
+                        <option value="facebook">Facebook</option>
+                        <option value="twitter">Twitter</option>
+                        <option value="linkedin">LinkedIn</option>
+                        <option value="tiktok">TikTok</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="descricao">Descrição Detalhada do Pedido:</label>
+                    <textarea id="descricao" name="descricao" rows="5" placeholder="Descreva detalhadamente o que você precisa..." required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="arquivos">Upload de Arquivos de Referência:</label>
+                    <input type="file" id="arquivos" name="arquivos" multiple accept=".jpg,.jpeg,.png,.pdf,.gif">
+                    <small>Formatos aceitos: JPG, PNG, PDF, GIF</small>
+                </div>
+
+                <div class="form-group">
+                    <label>Urgência:</label>
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" name="urgencia" value="critica" required>
+                            <span>Urgência Crítica - Até 24h</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="urgencia" value="moderada" required>
+                            <span>Urgência Moderada - 24h a 3 dias úteis</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="urgencia" value="leve" required>
+                            <span>Urgência Leve - 3 a +7 dias úteis</span>
+                        </label>
+                    </div>
+                </div>
+
+                <button type="submit" class="submit-btn">Enviar Pedido</button>
+            </form>
+        </section>
+
+        <!-- Seção Minhas Demandas -->
+        <section id="minhasDemandas" class="content-section">
+            <h2>Minhas Demandas</h2>
+            <div id="listaDemandas">
+                <!-- As demandas serão carregadas aqui via JavaScript -->
+            </div>
+        </section>
+    </main>
+
+    <script src="../js/script.js"></script>
+    <script src="../js/client.js"></script>
+</body>
+</html>
+
