@@ -68,15 +68,16 @@ pedidoForm.addEventListener('submit', function(e) {
         });
     }
     
-    // Salvar pedido no localStorage
-    savePedido(pedido);
-    
-    // Mostrar mensagem de sucesso
-    alert('Pedido enviado com sucesso! Você pode acompanhar o status na seção "Minhas Demandas".');
-    
-    // Limpar formulário
-    this.reset();
-    redeSocialGroup.style.display = 'none';
+        // 🔧 SALVAR NO FIRESTORE
+    try {
+        await addDoc(collection(db, 'pedidos'), pedido);
+        alert('Pedido enviado com sucesso! Você pode acompanhar o status na seção "Minhas Demandas".');
+        this.reset();
+        redeSocialGroup.style.display = 'none';
+    } catch (error) {
+        console.error("Erro ao enviar pedido:", error);
+        alert("Ocorreu um erro ao enviar seu pedido. Tente novamente mais tarde.");
+    }
 });
 
 // Funções auxiliares
@@ -99,16 +100,16 @@ function savePedido(pedido) {
     pedidos.push(pedido);
     localStorage.setItem('pedidos', JSON.stringify(pedidos));
 }
-
-function loadDemandas() {
+// 🔧 CARREGAR PEDIDOS DO FIRESTORE EM VEZ DO LOCALSTORAGE
+async function loadDemandas() {
     const listaDemandas = document.getElementById('listaDemandas');
-    const pedidos = JSON.parse(localStorage.getItem('pedidos')) || [];
     const currentUser = getCurrentUser();
-    
-    // Filtrar pedidos do usuário atual
-    const meusPedidos = pedidos.filter(pedido => pedido.cliente === currentUser.username);
-    
-    if (meusPedidos.length === 0) {
+
+    try {
+        const q = query(collection(db, "pedidos"), where("cliente", "==", currentUser.username));
+        const snapshot = await getDocs(q);
+
+        if (snapshot.empty) {
         listaDemandas.innerHTML = `
             <div class="empty-state">
                 <h3>Nenhuma demanda encontrada</h3>
