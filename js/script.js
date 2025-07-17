@@ -1,7 +1,8 @@
 // Sistema de autenticação simples usando localStorage
 const users = {
     'admin': { password: 'admin@2025*', role: 'admin' },
-    'cliente1': { password: '123456', role: 'client' },
+    'José Eduardo': { password: 'Edu@2025*', role: 'admin' },
+    'cliente1': { password: 'cliente01@2025', role: 'client' },
     'cliente2': { password: '123456', role: 'client' }
 };
 
@@ -93,4 +94,3 @@ function protectPage(requiredRole = null) {
     
     return true;
 }
-
