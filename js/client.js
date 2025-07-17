@@ -1,7 +1,3 @@
-// Importar configuração do Firebase
-import { db } from './firebase-config.js';
-import { collection, addDoc, getDocs, query, where, updateDoc, doc } from "firebase/firestore";
-
 // Proteger a página (apenas clientes podem acessar)
 if (!protectPage('client')) {
     // Se não for cliente, redireciona
@@ -43,50 +39,44 @@ tipoArteSelect.addEventListener('change', function() {
 });
 
 // Submissão do formulário de pedido
-pedidoForm.addEventListener('submit', async function(e) {
+pedidoForm.addEventListener('submit', function(e) {
     e.preventDefault();
     
-    try {
-        const formData = new FormData(this);
-        const pedido = {
-            cliente: getCurrentUser().username,
-            nomeCompleto: formData.get('nomeCompleto'),
-            email: formData.get('email'),
-            telefone: formData.get('telefone'),
-            tipoArte: formData.get('tipoArte'),
-            redeSocial: formData.get('redeSocial') || '',
-            descricao: formData.get('descricao'),
-            urgencia: formData.get('urgencia'),
-            status: 'aguardando',
-            dataEnvio: new Date().toISOString(),
-            dataEnvioFormatada: new Date().toLocaleDateString('pt-BR'),
-            arquivos: []
-        };
-        
-        // Processar arquivos (em um sistema real, seria enviado para o Firebase Storage)
-        const arquivos = document.getElementById('arquivos').files;
-        for (let i = 0; i < arquivos.length; i++) {
-            pedido.arquivos.push({
-                nome: arquivos[i].name,
-                tamanho: arquivos[i].size,
-                tipo: arquivos[i].type
-            });
-        }
-        
-        // Salvar pedido no Firestore
-        await savePedidoFirebase(pedido);
-        
-        // Mostrar mensagem de sucesso
-        alert('Pedido enviado com sucesso! Você pode acompanhar o status na seção "Minhas Demandas".');
-        
-        // Limpar formulário
-        this.reset();
-        redeSocialGroup.style.display = 'none';
-        
-    } catch (error) {
-        console.error('Erro ao enviar pedido:', error);
-        alert('Erro ao enviar pedido. Tente novamente.');
+    const formData = new FormData(this);
+    const pedido = {
+        id: Date.now().toString(),
+        cliente: getCurrentUser().username,
+        nomeCompleto: formData.get('nomeCompleto'),
+        email: formData.get('email'),
+        telefone: formData.get('telefone'),
+        tipoArte: formData.get('tipoArte'),
+        redeSocial: formData.get('redeSocial') || '',
+        descricao: formData.get('descricao'),
+        urgencia: formData.get('urgencia'),
+        status: 'aguardando',
+        dataEnvio: new Date().toLocaleDateString('pt-BR'),
+        arquivos: []
+    };
+    
+    // Simular upload de arquivos (em um sistema real, seria enviado para o servidor)
+    const arquivos = document.getElementById('arquivos').files;
+    for (let i = 0; i < arquivos.length; i++) {
+        pedido.arquivos.push({
+            nome: arquivos[i].name,
+            tamanho: arquivos[i].size,
+            tipo: arquivos[i].type
+        });
     }
+    
+    // Salvar pedido no localStorage
+    savePedido(pedido);
+    
+    // Mostrar mensagem de sucesso
+    alert('Pedido enviado com sucesso! Você pode acompanhar o status na seção "Minhas Demandas".');
+    
+    // Limpar formulário
+    this.reset();
+    redeSocialGroup.style.display = 'none';
 });
 
 // Funções auxiliares
@@ -104,65 +94,36 @@ function setActiveButton(activeBtn) {
     activeBtn.classList.add('active');
 }
 
-// Função para salvar pedido no Firebase
-async function savePedidoFirebase(pedido) {
-    try {
-        const docRef = await addDoc(collection(db, "pedidos"), pedido);
-        console.log("Pedido salvo com ID: ", docRef.id);
-        return docRef.id;
-    } catch (error) {
-        console.error("Erro ao salvar pedido: ", error);
-        throw error;
-    }
+function savePedido(pedido) {
+    let pedidos = JSON.parse(localStorage.getItem('pedidos')) || [];
+    pedidos.push(pedido);
+    localStorage.setItem('pedidos', JSON.stringify(pedidos));
 }
 
-// Função para carregar demandas do Firebase
-async function loadDemandas() {
+function loadDemandas() {
     const listaDemandas = document.getElementById('listaDemandas');
+    const pedidos = JSON.parse(localStorage.getItem('pedidos')) || [];
     const currentUser = getCurrentUser();
     
-    try {
-        // Buscar pedidos do usuário atual no Firestore
-        const q = query(collection(db, "pedidos"), where("cliente", "==", currentUser.username));
-        const querySnapshot = await getDocs(q);
-        
-        const meusPedidos = [];
-        querySnapshot.forEach((doc) => {
-            meusPedidos.push({
-                id: doc.id,
-                ...doc.data()
-            });
-        });
-        
-        if (meusPedidos.length === 0) {
-            listaDemandas.innerHTML = `
-                <div class="empty-state">
-                    <h3>Nenhuma demanda encontrada</h3>
-                    <p>Você ainda não enviou nenhum pedido. Clique em "Enviar Pedido" para começar.</p>
-                </div>
-            `;
-            return;
-        }
-        
-        listaDemandas.innerHTML = '';
-        
-        // Ordenar por data de envio (mais recente primeiro)
-        meusPedidos.sort((a, b) => new Date(b.dataEnvio) - new Date(a.dataEnvio));
-        
-        meusPedidos.forEach(pedido => {
-            const demandaCard = createDemandaCard(pedido);
-            listaDemandas.appendChild(demandaCard);
-        });
-        
-    } catch (error) {
-        console.error("Erro ao carregar demandas: ", error);
+    // Filtrar pedidos do usuário atual
+    const meusPedidos = pedidos.filter(pedido => pedido.cliente === currentUser.username);
+    
+    if (meusPedidos.length === 0) {
         listaDemandas.innerHTML = `
             <div class="empty-state">
-                <h3>Erro ao carregar demandas</h3>
-                <p>Ocorreu um erro ao carregar suas demandas. Tente novamente.</p>
+                <h3>Nenhuma demanda encontrada</h3>
+                <p>Você ainda não enviou nenhum pedido. Clique em "Enviar Pedido" para começar.</p>
             </div>
         `;
+        return;
     }
+    
+    listaDemandas.innerHTML = '';
+    
+    meusPedidos.forEach(pedido => {
+        const demandaCard = createDemandaCard(pedido);
+        listaDemandas.appendChild(demandaCard);
+    });
 }
 
 function createDemandaCard(pedido) {
@@ -183,7 +144,7 @@ function createDemandaCard(pedido) {
         <div class="demanda-info">
             <div class="info-item">
                 <div class="info-label">Data do Pedido</div>
-                <div class="info-value">${pedido.dataEnvioFormatada}</div>
+                <div class="info-value">${pedido.dataEnvio}</div>
             </div>
             <div class="info-item">
                 <div class="info-label">Urgência</div>
@@ -261,38 +222,30 @@ function getTipoArteText(tipo) {
     return tipoMap[tipo] || tipo;
 }
 
-// Função para aprovar pedido no Firebase
-async function aprovarPedido(pedidoId) {
-    try {
-        const pedidoRef = doc(db, "pedidos", pedidoId);
-        await updateDoc(pedidoRef, {
-            status: 'finalizada'
-        });
-        
+function aprovarPedido(pedidoId) {
+    let pedidos = JSON.parse(localStorage.getItem('pedidos')) || [];
+    const pedidoIndex = pedidos.findIndex(p => p.id === pedidoId);
+    
+    if (pedidoIndex !== -1) {
+        pedidos[pedidoIndex].status = 'finalizada';
+        localStorage.setItem('pedidos', JSON.stringify(pedidos));
         loadDemandas();
         alert('Pedido aprovado com sucesso!');
-    } catch (error) {
-        console.error("Erro ao aprovar pedido: ", error);
-        alert('Erro ao aprovar pedido. Tente novamente.');
     }
 }
 
-// Função para reprovar pedido no Firebase
-async function reprovarPedido(pedidoId) {
+function reprovarPedido(pedidoId) {
     const motivo = prompt('Por favor, informe o motivo da reprovação:');
     if (motivo) {
-        try {
-            const pedidoRef = doc(db, "pedidos", pedidoId);
-            await updateDoc(pedidoRef, {
-                status: 'reprovada',
-                observacoes: `Reprovado pelo cliente: ${motivo}`
-            });
-            
+        let pedidos = JSON.parse(localStorage.getItem('pedidos')) || [];
+        const pedidoIndex = pedidos.findIndex(p => p.id === pedidoId);
+        
+        if (pedidoIndex !== -1) {
+            pedidos[pedidoIndex].status = 'reprovada';
+            pedidos[pedidoIndex].observacoes = `Reprovado pelo cliente: ${motivo}`;
+            localStorage.setItem('pedidos', JSON.stringify(pedidos));
             loadDemandas();
             alert('Pedido reprovado. O motivo foi enviado para o administrador.');
-        } catch (error) {
-            console.error("Erro ao reprovar pedido: ", error);
-            alert('Erro ao reprovar pedido. Tente novamente.');
         }
     }
 }
@@ -307,4 +260,3 @@ document.addEventListener('DOMContentLoaded', function() {
         loadDemandas();
     }
 });
-
